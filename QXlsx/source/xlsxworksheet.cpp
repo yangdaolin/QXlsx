@@ -1516,7 +1516,7 @@ void WorksheetPrivate::saveXmlSheetData(QXmlStreamWriter &writer) const
 
             //! Todo: support customHeight from info struct
             //! Todo: where does this magic number '15' come from?
-            if (rowInfo->customHeight) {
+            if (rowInfo->customHeight || rowInfo->height ) {
                 writer.writeAttribute(QStringLiteral("ht"), QString::number(rowInfo->height));
                 writer.writeAttribute(QStringLiteral("customHeight"), QStringLiteral("1"));
             } else {
@@ -2261,6 +2261,7 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
 
                 if (attributes.hasAttribute(QLatin1String("customFormat")) ||
                     attributes.hasAttribute(QLatin1String("customHeight")) ||
+                    attributes.hasAttribute(QLatin1String("ht")) ||
                     attributes.hasAttribute(QLatin1String("hidden")) ||
                     attributes.hasAttribute(QLatin1String("outlineLevel")) ||
                     attributes.hasAttribute(QLatin1String("collapsed"))) {
@@ -2275,12 +2276,13 @@ void WorksheetPrivate::loadXmlSheetData(QXmlStreamReader &reader)
                     if (attributes.hasAttribute(QLatin1String("customHeight"))) {
                         info->customHeight =
                             attributes.value(QLatin1String("customHeight")) == QLatin1String("1");
-                        // Row height is only specified when customHeight is set
-                        if (attributes.hasAttribute(QLatin1String("ht"))) {
-                            info->height = attributes.value(QLatin1String("ht")).toDouble();
-                        }
                     }
 
+                    // Row height is only specified when customHeight is set
+                    if (attributes.hasAttribute(QLatin1String("ht"))) {
+                        info->height = attributes.value(QLatin1String("ht")).toDouble();
+                    }
+                    
                     // both "hidden" and "collapsed" default are false
                     info->hidden = attributes.value(QLatin1String("hidden")) == QLatin1String("1");
                     info->collapsed =
